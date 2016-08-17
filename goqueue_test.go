@@ -1,7 +1,6 @@
 package goqueue
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -25,6 +24,10 @@ func (c compInt) compareTo(other Orderable) (int, error) {
 	}
 
 	return 0, nil
+}
+
+func ci(x int) compInt {
+	return compInt{x}
 }
 
 type compString struct {
@@ -97,20 +100,38 @@ func TestBalancingEnqueue(t *testing.T) {
 	p3 := compInt{3}
 	p4 := compInt{2}
 	p5 := compInt{1}
-	p6 := compInt{10}
+	p6 := compInt{6}
 
 	queue.Enqueue(p5, 0)
 	queue.Enqueue(p1, 0)
 	queue.Enqueue(p2, 0)
-	queue.Enqueue(p3, 0)
 	queue.Enqueue(p4, 0)
 	queue.Enqueue(p6, 0)
+	queue.Enqueue(p3, 0)
 
-	fmt.Println()
-	fmt.Println()
-	for _, i := range queue.items {
-		fmt.Println(i)
+	/**
+	This is the expected bin heap
+	(variations possible, but primary property is that no key must be higher than it's parent.)
+
+			1
+		2/		3
+	4/	   \5|6/
+	*/
+
+	for i, item := range queue.items {
+		//First item? It has no parent, therefore is a special case, skip.
+		if i == 0 {
+			continue
+		}
+		itemParent := queue.items[computeParentIdx(i)]
+
+		if comp, err := item.k.compareTo(itemParent.k); err == nil && comp < 0 {
+			t.Fatalf("Heap property violated item %+v had parent %+v.", item, itemParent)
+		}
 	}
 
-	t.Fatalf("You should implement a test")
+	if comp, err := queue.items[0].k.compareTo(queue.items[1].k); err == nil && comp != -1 {
+		t.Fatalf("Root node has not the lowest priority...")
+	}
+
 }

@@ -1,9 +1,6 @@
 package goqueue
 
-import (
-	"fmt"
-	"math"
-)
+import "math"
 
 type goQueue struct {
 	items []goQueueItem
@@ -52,28 +49,23 @@ func (q *goQueue) rebalance() {
 		return
 	}
 
-	itemIdx := qLen - 1
-	item := q.items[itemIdx]
-	parentIdx := computeParentIdx(itemIdx)
-	parent := q.items[parentIdx]
+	idx := qLen - 1
+	item := q.items[idx]
+	pIdx := computeParentIdx(idx)
+	p := q.items[pIdx]
 
-	comp, _ := item.k.compareTo(parent.k)
+	comp, _ := item.k.compareTo(p.k)
+	for idx != 0 && comp <= 0 {
+		q.items[pIdx] = item
+		q.items[idx] = p
 
-	for comp == -1 {
-		fmt.Println(q.items)
+		idx = pIdx
+		temp := item
+		item = p
+		p = temp
 
-		q.items[parentIdx] = item
-		q.items[itemIdx] = parent
-		itemIdx = parentIdx
-		parentIdx = computeParentIdx(itemIdx)
-		if parentIdx == -1 {
-			break
-		}
-		parent = q.items[parentIdx]
-		comp, _ = item.k.compareTo(parent.k)
-
+		comp, _ = item.k.compareTo(p.k)
 	}
-
 }
 
 func (q *goQueue) DequeueMax() interface{} {
