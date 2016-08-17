@@ -2,6 +2,8 @@ package goqueue
 
 import "fmt"
 
+//IllegalTypeError can be returned when you make an illegal comparisson.
+//Mainly exported to allow the possibility of specific error logic.
 type IllegalTypeError struct {
 	expected string
 	actual   string
