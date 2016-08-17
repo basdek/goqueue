@@ -1,6 +1,7 @@
 package goqueue
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -13,19 +14,19 @@ func (c compInt) compareTo(other Orderable) (int, error) {
 
 	o, err := other.(compInt)
 
-	if !err {
+	switch {
+	case !err:
 		return 2, &IllegalTypeError{actual: reflect.TypeOf(other).Name(), expected: "compInt"}
-	}
-
-	if c.x > o.x {
+	case c.x > o.x:
 		return 1, nil
-	} else if c.x < o.x {
+	case c.x < o.x:
 		return -1, nil
+	default:
+		return 0, nil
 	}
-
-	return 0, nil
 }
 
+//Super quick compInt constructor.
 func ci(x int) compInt {
 	return compInt{x}
 }
@@ -38,25 +39,23 @@ func (c compString) compareTo(other Orderable) (int, error) {
 
 	o, err := other.(compString)
 
-	if !err {
+	switch {
+	case !err:
 		return 2, &IllegalTypeError{actual: reflect.TypeOf(other).Name(), expected: "compString"}
-	}
-
-	if c.x > o.x {
+	case c.x > o.x:
 		return 1, nil
-	} else if c.x < o.x {
+	case c.x < o.x:
 		return -1, nil
+	default:
+		return 0, nil
 	}
-
-	return 0, nil
-
 }
 
 func TestEnqueueShouldWorkOnEmptyQueue(t *testing.T) {
 
 	queue := New()
 
-	prio := compInt{70}
+	prio := ci(70)
 	val := true
 	queue.Enqueue(prio, val)
 
@@ -70,7 +69,7 @@ func TestEnqueueShouldGiveAnErrorIfYouTryToEnterAnIllegalType(t *testing.T) {
 
 	queue := New()
 
-	p1 := compInt{1}
+	p1 := ci(1)
 	v1 := true
 
 	p2 := compString{"somestr"}
@@ -94,28 +93,23 @@ func TestEnqueueShouldGiveAnErrorIfYouTryToEnterAnIllegalType(t *testing.T) {
 func TestBalancingEnqueue(t *testing.T) {
 
 	queue := New()
+	//Enqueue some values with different prios.
+	queue.Enqueue(ci(5), 0)
+	queue.Enqueue(ci(4), 0)
+	queue.Enqueue(ci(3), 0)
+	queue.Enqueue(ci(2), 0)
+	queue.Enqueue(ci(100), 0)
+	queue.Enqueue(ci(6), 0)
+	queue.Enqueue(ci(6), 0)
 
-	p1 := compInt{5}
-	p2 := compInt{4}
-	p3 := compInt{3}
-	p4 := compInt{2}
-	p5 := compInt{1}
-	p6 := compInt{6}
+	/*
+		This is the expected bin heap
+		(variations possible, but primary property is that no key must be higher than it's parent.)
 
-	queue.Enqueue(p5, 0)
-	queue.Enqueue(p1, 0)
-	queue.Enqueue(p2, 0)
-	queue.Enqueue(p4, 0)
-	queue.Enqueue(p6, 0)
-	queue.Enqueue(p3, 0)
+				1
+			2/		\3
+		4/	   \5|6/
 
-	/**
-	This is the expected bin heap
-	(variations possible, but primary property is that no key must be higher than it's parent.)
-
-			1
-		2/		3
-	4/	   \5|6/
 	*/
 
 	for i, item := range queue.items {
@@ -126,6 +120,7 @@ func TestBalancingEnqueue(t *testing.T) {
 		itemParent := queue.items[computeParentIdx(i)]
 
 		if comp, err := item.k.compareTo(itemParent.k); err == nil && comp < 0 {
+			fmt.Println(queue.items)
 			t.Fatalf("Heap property violated item %+v had parent %+v.", item, itemParent)
 		}
 	}
@@ -134,4 +129,31 @@ func TestBalancingEnqueue(t *testing.T) {
 		t.Fatalf("Root node has not the lowest priority...")
 	}
 
+}
+
+func TestEmptyQueueDequeue(t *testing.T) {
+	queue := New()
+
+	item := queue.Dequeue()
+
+	if item != nil {
+		t.Fatalf("We expected to get nil from dequeue'ing an empty queue.")
+	}
+}
+
+func TestFilledQueueDequeue(t *testing.T) {
+	queue := New()
+
+	queue.Enqueue(ci(50), 5)
+	queue.Enqueue(ci(1), 1)
+	queue.Enqueue(ci(2), 2)
+	queue.Enqueue(ci(4), 4)
+	queue.Enqueue(ci(6), 6)
+	queue.Enqueue(ci(3), 3)
+
+	first := queue.Dequeue()
+
+	if first != 1 {
+		t.Fatalf("Expected to retrieve element %s, got %v", 1, first)
+	}
 }

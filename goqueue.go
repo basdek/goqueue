@@ -55,25 +55,26 @@ func (q *goQueue) rebalance() {
 	p := q.items[pIdx]
 
 	comp, _ := item.k.compareTo(p.k)
-	for idx != 0 && comp <= 0 {
+
+	for idx != 0 && comp < 0 {
 		q.items[pIdx] = item
 		q.items[idx] = p
 
 		idx = pIdx
-		temp := item
-		item = p
-		p = temp
+		if idx == 0 {
+			break
+		}
+		pIdx = computeParentIdx(idx)
+		p = q.items[pIdx]
 
 		comp, _ = item.k.compareTo(p.k)
 	}
 }
 
-func (q *goQueue) DequeueMax() interface{} {
-	//Simply return the last element.
-	return nil
-}
-
-func (q *goQueue) DequeueMin() interface{} {
-	//Simply return the first element.
-	return nil
+func (q *goQueue) Dequeue() interface{} {
+	if len(q.items) == 0 {
+		return nil
+	}
+	elem := q.items[0].v
+	return elem
 }
