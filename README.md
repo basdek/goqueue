@@ -60,7 +60,7 @@ q := goqueue.New()
 q.enqueue(ordInt{24}, anyObjectMightBeStoredHere)
 q.enqueue(ordInt{23}, anyObjectMightBeStoredHere)
 
-q.dequeue() //Will result in 23's object.
+val, prio := q.dequeue() //Will result in 23's object, with it's prio.
 ```
 
 ## Tests
