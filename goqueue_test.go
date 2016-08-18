@@ -90,6 +90,45 @@ func TestEnqueueShouldGiveAnErrorIfYouTryToEnterAnIllegalType(t *testing.T) {
 
 }
 
+//validateHeapProperty validates the entire queue's heap property.
+//(In probably a suboptimal manner, but it'll do for this tests.)
+func validateHeapProperty(queue goQueue) error {
+
+	qLen := len(queue.items)
+
+	if len(queue.items) <= 1 {
+		return nil
+	}
+
+	for i, item := range queue.items {
+		//The root item has no parent. We'll apply a different check.
+		if i == 0 {
+			continue
+		}
+
+		itemParent := queue.items[computeParentIdx(i)]
+		if comp, err := item.k.compareTo(itemParent.k); err == nil && comp < 0 {
+			return fmt.Errorf("Heap property violated: item %+v had parent %+v.", item, itemParent)
+		}
+	}
+
+	//Checks for the root element
+	lIdx, rIdx := computeChildIndices(0)
+	if lIdx <= qLen {
+		if comp, err := queue.items[0].k.compareTo(queue.items[lIdx].k); err == nil && comp > 0 {
+			return fmt.Errorf("Heap property violated: root %+v had child %+v", queue.items[0], queue.items[lIdx])
+		}
+
+	}
+	if rIdx <= qLen {
+		if comp, err := queue.items[0].k.compareTo(queue.items[rIdx].k); err == nil && comp > 0 {
+			return fmt.Errorf("Heap property violated: root %+v had child %+v", queue.items[0], queue.items[rIdx])
+		}
+	}
+
+	return nil
+}
+
 func TestBalancingEnqueue(t *testing.T) {
 
 	queue := New()
@@ -112,21 +151,8 @@ func TestBalancingEnqueue(t *testing.T) {
 
 	*/
 
-	for i, item := range queue.items {
-		//First item? It has no parent, therefore is a special case, skip.
-		if i == 0 {
-			continue
-		}
-		itemParent := queue.items[computeParentIdx(i)]
-
-		if comp, err := item.k.compareTo(itemParent.k); err == nil && comp < 0 {
-			fmt.Println(queue.items)
-			t.Fatalf("Heap property violated item %+v had parent %+v.", item, itemParent)
-		}
-	}
-
-	if comp, err := queue.items[0].k.compareTo(queue.items[1].k); err == nil && comp != -1 {
-		t.Fatalf("Root node has not the lowest priority...")
+	if valid := validateHeapProperty(*queue); valid != nil {
+		t.Fatal(valid)
 	}
 
 }
@@ -134,7 +160,7 @@ func TestBalancingEnqueue(t *testing.T) {
 func TestEmptyQueueDequeue(t *testing.T) {
 	queue := New()
 
-	item := queue.Dequeue()
+	item, _ := queue.Dequeue()
 
 	if item != nil {
 		t.Fatalf("We expected to get nil from dequeue'ing an empty queue.")
@@ -145,15 +171,18 @@ func TestFilledQueueDequeue(t *testing.T) {
 	queue := New()
 
 	queue.Enqueue(ci(50), 5)
-	queue.Enqueue(ci(1), 1)
-	queue.Enqueue(ci(2), 2)
-	queue.Enqueue(ci(4), 4)
-	queue.Enqueue(ci(6), 6)
-	queue.Enqueue(ci(3), 3)
+	queue.Enqueue(ci(20), 2)
+	queue.Enqueue(ci(40), 4)
+	queue.Enqueue(ci(600), 6)
+	queue.Enqueue(ci(30), 3)
+	queue.Enqueue(ci(10), 1)
 
-	first := queue.Dequeue()
+	expectedOutput := [6]int{1, 2, 3, 4, 5, 6}
 
-	if first != 1 {
-		t.Fatalf("Expected to retrieve element %s, got %v", 1, first)
+	for i, expected := range expectedOutput {
+		val, _ := queue.Dequeue()
+		if val != expected {
+			t.Fatalf("Expected to retrieve %d at index %d got %+v", expected, i, val)
+		}
 	}
 }
