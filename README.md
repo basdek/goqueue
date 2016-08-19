@@ -71,5 +71,9 @@ Tests can simply be run by ```go test```
 
 Semver is used.
 
+### 0.1.1
+
+Exported some more types that were not exported, hindering effective usage.
+
 ### 0.1.0
 Basic prio(min)queue functionality implemented and functionaly tested.
