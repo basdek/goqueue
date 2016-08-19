@@ -9,5 +9,5 @@ package goqueue
 //between two distinct types (implementors of this interface) that have no solution to their
 //equality question. (For performance reasons, do this as early as possible.)
 type Orderable interface {
-	compareTo(other Orderable) (int, error)
+	CompareTo(other Orderable) (int, error)
 }
