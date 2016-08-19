@@ -38,7 +38,7 @@ func (q *goQueue) Enqueue(prio Orderable, item interface{}) error {
 
 	//Type check the prio.
 	someRandomItem := q.items[0]
-	_, comperr := someRandomItem.k.compareTo(prio)
+	_, comperr := someRandomItem.k.CompareTo(prio)
 	if comperr != nil {
 		return comperr
 	}
@@ -62,7 +62,7 @@ func (q *goQueue) percUp() {
 	pIdx := computeParentIdx(idx)
 	p := q.items[pIdx]
 
-	comp, _ := item.k.compareTo(p.k)
+	comp, _ := item.k.CompareTo(p.k)
 
 	for idx != 0 && comp < 0 {
 		q.items[pIdx] = item
@@ -75,7 +75,7 @@ func (q *goQueue) percUp() {
 		pIdx = computeParentIdx(idx)
 		p = q.items[pIdx]
 
-		comp, _ = item.k.compareTo(p.k)
+		comp, _ = item.k.CompareTo(p.k)
 	}
 }
 
@@ -112,12 +112,12 @@ func (q *goQueue) percDown(itemIdx int) {
 
 	smallest := itemIdx
 	if lIdx < qLen {
-		if comp, err := item.k.compareTo(q.items[lIdx].k); err == nil && comp >= 0 {
+		if comp, err := item.k.CompareTo(q.items[lIdx].k); err == nil && comp >= 0 {
 			smallest = lIdx
 		}
 	}
 	if rIdx < qLen {
-		if comp, err := item.k.compareTo(q.items[rIdx].k); err == nil && comp >= 0 {
+		if comp, err := item.k.CompareTo(q.items[rIdx].k); err == nil && comp >= 0 {
 			smallest = rIdx
 		}
 	}
