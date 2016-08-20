@@ -10,13 +10,13 @@ type compInt struct {
 	x int
 }
 
-func (c compInt) compareTo(other Orderable) (int, error) {
+func (c compInt) CompareTo(other Orderable) (int, error) {
 
 	o, err := other.(compInt)
 
 	switch {
 	case !err:
-		return 2, &IllegalTypeError{actual: reflect.TypeOf(other).Name(), expected: "compInt"}
+		return 2, &IllegalTypeError{Actual: reflect.TypeOf(other).Name(), Expected: "compInt"}
 	case c.x > o.x:
 		return 1, nil
 	case c.x < o.x:
@@ -35,13 +35,13 @@ type compString struct {
 	x string
 }
 
-func (c compString) compareTo(other Orderable) (int, error) {
+func (c compString) CompareTo(other Orderable) (int, error) {
 
 	o, err := other.(compString)
 
 	switch {
 	case !err:
-		return 2, &IllegalTypeError{actual: reflect.TypeOf(other).Name(), expected: "compString"}
+		return 2, &IllegalTypeError{Actual: reflect.TypeOf(other).Name(), Expected: "compString"}
 	case c.x > o.x:
 		return 1, nil
 	case c.x < o.x:
@@ -92,7 +92,7 @@ func TestEnqueueShouldGiveAnErrorIfYouTryToEnterAnIllegalType(t *testing.T) {
 
 //validateHeapProperty validates the entire queue's heap property.
 //(In probably a suboptimal manner, but it'll do for this tests.)
-func validateHeapProperty(queue goQueue) error {
+func validateHeapProperty(queue GoQueue) error {
 
 	qLen := len(queue.items)
 
@@ -107,7 +107,7 @@ func validateHeapProperty(queue goQueue) error {
 		}
 
 		itemParent := queue.items[computeParentIdx(i)]
-		if comp, err := item.k.compareTo(itemParent.k); err == nil && comp < 0 {
+		if comp, err := item.k.CompareTo(itemParent.k); err == nil && comp < 0 {
 			return fmt.Errorf("Heap property violated: item %+v had parent %+v.", item, itemParent)
 		}
 	}
@@ -115,13 +115,13 @@ func validateHeapProperty(queue goQueue) error {
 	//Checks for the root element
 	lIdx, rIdx := computeChildIndices(0)
 	if lIdx <= qLen {
-		if comp, err := queue.items[0].k.compareTo(queue.items[lIdx].k); err == nil && comp > 0 {
+		if comp, err := queue.items[0].k.CompareTo(queue.items[lIdx].k); err == nil && comp > 0 {
 			return fmt.Errorf("Heap property violated: root %+v had child %+v", queue.items[0], queue.items[lIdx])
 		}
 
 	}
 	if rIdx <= qLen {
-		if comp, err := queue.items[0].k.compareTo(queue.items[rIdx].k); err == nil && comp > 0 {
+		if comp, err := queue.items[0].k.CompareTo(queue.items[rIdx].k); err == nil && comp > 0 {
 			return fmt.Errorf("Heap property violated: root %+v had child %+v", queue.items[0], queue.items[rIdx])
 		}
 	}
