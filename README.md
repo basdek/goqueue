@@ -71,6 +71,10 @@ Tests can simply be run by ```go test```
 
 Semver is used.
 
+### 0.1.2
+
+Exported some more types that were not exported, hindering effective usage, again.
+
 ### 0.1.1
 
 Exported some more types that were not exported, hindering effective usage.
