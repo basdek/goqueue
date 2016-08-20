@@ -2,13 +2,13 @@ package goqueue
 
 import "math"
 
-type goQueue struct {
+type GoQueue struct {
 	items []goQueueItem
 }
 
 //New instantiates a new empty goQueue.
-func New() *goQueue {
-	q := new(goQueue)
+func New() *GoQueue {
+	q := new(GoQueue)
 	return q
 }
 
@@ -29,7 +29,7 @@ func computeChildIndices(childIdx int) (int, int) {
 }
 
 //Enqueue adds a new item to the queue, with a given priority.
-func (q *goQueue) Enqueue(prio Orderable, item interface{}) error {
+func (q *GoQueue) Enqueue(prio Orderable, item interface{}) error {
 
 	if len(q.items) == 0 {
 		q.items = append(q.items, goQueueItem{k: prio, v: item})
@@ -49,7 +49,7 @@ func (q *goQueue) Enqueue(prio Orderable, item interface{}) error {
 	return nil
 }
 
-func (q *goQueue) percUp() {
+func (q *GoQueue) percUp() {
 	qLen := len(q.items)
 
 	//Nothing to balance? Nice. Be gone.
@@ -79,7 +79,7 @@ func (q *goQueue) percUp() {
 	}
 }
 
-func (q *goQueue) Dequeue() (interface{}, Orderable) {
+func (q *GoQueue) Dequeue() (interface{}, Orderable) {
 	if len(q.items) == 0 {
 		return nil, nil
 	}
@@ -96,7 +96,7 @@ func (q *goQueue) Dequeue() (interface{}, Orderable) {
 	return elem.v, elem.k
 }
 
-func (q *goQueue) percDown(itemIdx int) {
+func (q *GoQueue) percDown(itemIdx int) {
 
 	qLen := len(q.items)
 
